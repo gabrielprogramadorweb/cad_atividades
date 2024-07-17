@@ -1,0 +1,32 @@
+.fixed-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    padding-top: 56px;
+    z-index: 1000;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.offset-2 {
+    margin-left: 16.666667%;
+    padding-top: 56px;
+}
+
+#wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+#content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#content {
+    flex: 1;
+}
