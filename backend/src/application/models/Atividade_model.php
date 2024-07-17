@@ -28,5 +28,11 @@ class Atividade_model extends CI_Model {
         $this->db->where('id', $id);
         return $this->db->delete('atividade');
     }
+
+    public function delete_atividades_por_projeto($idProjeto) {
+        $this->db->where('idProjeto', $idProjeto);
+        return $this->db->delete('atividade');
+    }
+
 }
 ?>

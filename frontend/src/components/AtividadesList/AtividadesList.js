@@ -4,6 +4,7 @@ import { getAtividades, deleteAtividade, updateAtividade, createAtividade, creat
 import './AtividadesList.css';
 import EditAtividadeModal from '../EditAtividadeModal/EditAtividadeModal';
 import CadastroAtividadeModal from '../CadastroAtividadeModal/CadastroAtividadeModal';
+import ConfirmDeleteAtividadeModal from "../Modal/ConfirmDeleteAtividadeModal";
 
 const AtividadesList = () => {
     const [atividades, setAtividades] = useState([]);
@@ -15,6 +16,8 @@ const AtividadesList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const itemsPerPage = 5;
+    const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+    const [atividadeToDelete, setAtividadeToDelete] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -40,10 +43,17 @@ const AtividadesList = () => {
         fetchData();
     }, []);
 
-    const handleDelete = async (id) => {
+    const handleDelete = (id) => {
+        setAtividadeToDelete(id);
+        setShowConfirmDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
         try {
-            await deleteAtividade(id);
-            setAtividades(atividades.filter(atividade => atividade.id !== id));
+            await deleteAtividade(atividadeToDelete);
+            setAtividades(atividades.filter(atividade => atividade.id !== atividadeToDelete));
+            setShowConfirmDeleteModal(false);
+            setAtividadeToDelete(null);
         } catch (error) {
             setError(error.message);
         }
@@ -159,6 +169,11 @@ const AtividadesList = () => {
                 handleClose={() => setShowCadastroAtividadeModal(false)}
                 handleSave={handleSaveCadastroAtividade}
                 projetos={projetos}
+            />
+            <ConfirmDeleteAtividadeModal
+                show={showConfirmDeleteModal}
+                handleClose={() => setShowConfirmDeleteModal(false)}
+                handleConfirm={confirmDelete}
             />
         </div>
     );

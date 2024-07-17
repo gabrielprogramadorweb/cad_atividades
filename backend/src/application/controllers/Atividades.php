@@ -16,7 +16,7 @@ class Atividades extends CI_Controller {
         header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
         header('Access-Control-Allow-Headers: Content-Type, Authorization');
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            exit; // respond to preflight request and exit
+            exit;
         }
     }
 
@@ -36,7 +36,7 @@ class Atividades extends CI_Controller {
             $atividade = $this->Atividade_model->get_atividades($id);
             if (!$atividade) {
                 $this->output->set_status_header(404);
-                echo json_encode(['status' => 'error', 'message' => 'Atividade not found']);
+                echo json_encode(['status' => 'error', 'message' => 'Atividade não encontrada']);
             } else {
                 echo json_encode($atividade);
             }
@@ -78,7 +78,7 @@ class Atividades extends CI_Controller {
                 $this->output
                     ->set_content_type('application/json')
                     ->set_status_header(500)
-                    ->set_output(json_encode(['error' => 'Failed to update atividade']));
+                    ->set_output(json_encode(['error' => 'Falha ao atualizar atividade']));
             }
         } catch (Exception $e) {
             log_message('error', $e->getMessage());
@@ -92,7 +92,7 @@ class Atividades extends CI_Controller {
             if ($this->Atividade_model->delete_atividade($id)) {
                 echo json_encode(['status' => 'success']);
             } else {
-                throw new Exception('Failed to delete atividade');
+                throw new Exception('Falha ao deletar atividade');
             }
         } catch (Exception $e) {
             log_message('error', $e->getMessage());
