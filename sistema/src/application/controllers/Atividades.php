@@ -11,6 +11,15 @@ class Atividades extends CI_Controller {
         $this->set_cors_headers();
     }
 
+    private function set_cors_headers() {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            exit; // respond to preflight request and exit
+        }
+    }
+
     public function index() {
         try {
             $atividades = $this->Atividade_model->get_atividades();
@@ -40,10 +49,6 @@ class Atividades extends CI_Controller {
 
     public function create() {
         try {
-            if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-                exit; // respond to preflight request and exit
-            }
-
             $data = json_decode($this->input->raw_input_stream, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new Exception('JSON decode error: ' . json_last_error_msg());
@@ -61,7 +66,7 @@ class Atividades extends CI_Controller {
     public function update($id) {
         try {
             $data = json_decode(file_get_contents("php://input"), true);
-            unset($data['projetoId']); // Remove o campo 'projetoId' se existir
+            unset($data['projetoId']);
 
             if ($this->Atividade_model->update_atividade($id, $data)) {
                 $updatedAtividade = $this->Atividade_model->get_atividades($id);
@@ -82,7 +87,6 @@ class Atividades extends CI_Controller {
         }
     }
 
-
     public function delete($id) {
         try {
             if ($this->Atividade_model->delete_atividade($id)) {
@@ -95,12 +99,6 @@ class Atividades extends CI_Controller {
             $this->output->set_status_header(500);
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
-    }
-
-    private function set_cors_headers() {
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-        header('Access-Control-Allow-Headers: Content-Type, Authorization');
     }
 }
 ?>

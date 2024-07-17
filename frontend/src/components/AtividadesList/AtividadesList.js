@@ -56,7 +56,8 @@ const AtividadesList = () => {
 
     const handleSaveEdit = async (updatedAtividade) => {
         try {
-            const updatedAtividadeResponse = await updateAtividade(updatedAtividade.id, updatedAtividade);
+            const { projetoDescricao, ...atividadeData } = updatedAtividade; // Remover projetoDescricao
+            const updatedAtividadeResponse = await updateAtividade(updatedAtividade.id, atividadeData);
             setAtividades(atividades.map(atividade =>
                 atividade.id === updatedAtividade.id ? updatedAtividadeResponse : atividade
             ));
@@ -89,7 +90,7 @@ const AtividadesList = () => {
     };
 
     const filteredAtividades = atividades.filter(atividade =>
-        atividade.id.toLowerCase().includes(searchTerm.toLowerCase())
+        atividade.descricao && atividade.descricao.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -104,7 +105,7 @@ const AtividadesList = () => {
     return (
         <div className="container mt-5">
             <h3 className="mb-2">Lista de Atividades</h3>
-            <Button className="mb-3" onClick={() => setShowCadastroAtividadeModal(true)}>Cadastrar Atividade</Button>
+            <Button className="mb-2" onClick={() => setShowCadastroAtividadeModal(true)}>Cadastrar Atividade</Button>
             <FormControl
                 type="text"
                 placeholder="Pesquisar atividades"
