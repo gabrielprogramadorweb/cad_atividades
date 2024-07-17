@@ -1,12 +1,12 @@
 import React from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import AtividadesList from './components/AtividadesList/AtividadesList';
+import AdminLayout from "./components/AdminLayout/AdminLayout";
 
 function App() {
   return (
       <div className="App">
-        <AtividadesList />
+          <AdminLayout />
       </div>
   );
 }

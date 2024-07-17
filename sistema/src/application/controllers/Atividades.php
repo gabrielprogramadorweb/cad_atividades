@@ -61,16 +61,19 @@ class Atividades extends CI_Controller {
     public function update($id) {
         try {
             $data = json_decode(file_get_contents("php://input"), true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new Exception('JSON decode error: ' . json_last_error_msg());
-            }
+            unset($data['projetoId']); // Remove o campo 'projetoId' se existir
 
             if ($this->Atividade_model->update_atividade($id, $data)) {
                 $updatedAtividade = $this->Atividade_model->get_atividades($id);
-                $this->output->set_status_header(200);
-                echo json_encode($updatedAtividade);
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_status_header(200)
+                    ->set_output(json_encode($updatedAtividade));
             } else {
-                throw new Exception('Failed to update atividade');
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_status_header(500)
+                    ->set_output(json_encode(['error' => 'Failed to update atividade']));
             }
         } catch (Exception $e) {
             log_message('error', $e->getMessage());
@@ -78,6 +81,7 @@ class Atividades extends CI_Controller {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
 
     public function delete($id) {
         try {
