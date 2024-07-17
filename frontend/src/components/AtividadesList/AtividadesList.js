@@ -22,6 +22,7 @@ const AtividadesList = () => {
                 const atividadesResult = await getAtividades();
                 const projetosResult = await getProjetos();
 
+                // Associar projetos às atividades
                 const atividadesComProjetos = atividadesResult.map(atividade => {
                     const projeto = projetosResult.find(projeto => projeto.id === atividade.idProjeto);
                     return {
@@ -55,7 +56,7 @@ const AtividadesList = () => {
 
     const handleSaveEdit = async (updatedAtividade) => {
         try {
-            const { projetoDescricao, ...atividadeData } = updatedAtividade;
+            const { projetoDescricao, ...atividadeData } = updatedAtividade; // Remover projetoDescricao
             const updatedAtividadeResponse = await updateAtividade(updatedAtividade.id, atividadeData);
             setAtividades(atividades.map(atividade =>
                 atividade.id === updatedAtividade.id ? updatedAtividadeResponse : atividade

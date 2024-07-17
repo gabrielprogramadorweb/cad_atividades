@@ -16,7 +16,7 @@ class Atividades extends CI_Controller {
         header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
         header('Access-Control-Allow-Headers: Content-Type, Authorization');
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            exit;
+            exit; // respond to preflight request and exit
         }
     }
 

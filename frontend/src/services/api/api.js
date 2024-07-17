@@ -95,6 +95,7 @@ export const getProjetos = async () => {
     try {
         const response = await fetch(API_URL_PROJETOS);
         if (!response.ok) {
+            console.error('Failed to fetch projetos:', response.status, response.statusText);
             throw new Error(`Failed to fetch projetos: ${response.status} ${response.statusText}`);
         }
         return await response.json();
@@ -106,28 +107,34 @@ export const getProjetos = async () => {
 
 export const createProjeto = async (projeto) => {
     try {
+        console.log('Sending request to create projeto:', projeto);
         const response = await fetch(`${API_URL_PROJETOS}create`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(projeto),
         });
         if (!response.ok) {
+            console.error('Failed to create projeto:', response.status, response.statusText);
             const errorText = await response.text();
-            throw new Error(`Failed to create projeto: ${response.status} ${response.statusText} - ${errorText}`);
+            console.error('Error response text:', errorText);
+            throw new Error(`Failed to create projeto: ${response.status} ${response.statusText}`);
         }
-        return await response.json();
+        const jsonResponse = await response.json();
+        console.log('Response from server:', jsonResponse);
+        return jsonResponse;
     } catch (error) {
-        console.error('Failed to create projeto:', error);
+        console.error('Failed to fetch:', error);
         throw error;
     }
 };
 
 export const deleteProjeto = async (id) => {
     try {
-        const response = await fetch(`${API_URL_PROJETOS}delete/${id}`, {
+        const response = await fetch(`${API_URL_PROJETOS}${id}`, {
             method: 'DELETE',
         });
         if (!response.ok) {
+            console.error('Failed to delete projeto:', response.status, response.statusText);
             throw new Error(`Failed to delete projeto: ${response.status} ${response.statusText}`);
         }
         return await response.json();
@@ -139,15 +146,13 @@ export const deleteProjeto = async (id) => {
 
 export const updateProjeto = async (id, projeto) => {
     try {
-        const response = await fetch(`${API_URL_PROJETOS}update/${id}`, {
+        const response = await fetch(`${API_URL_PROJETOS}${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(projeto),
         });
         if (!response.ok) {
             console.error('Failed to update projeto:', response.status, response.statusText);
-            const errorText = await response.text();
-            console.error('Error response text:', errorText);
             throw new Error(`Failed to update projeto: ${response.status} ${response.statusText}`);
         }
         return await response.json();
@@ -156,3 +161,6 @@ export const updateProjeto = async (id, projeto) => {
         throw error;
     }
 };
+
+
+

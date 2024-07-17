@@ -65,8 +65,6 @@ $route['atividades/delete/(:any)'] = 'atividades/delete/$1';
 $route['projetos'] = 'projetos';
 $route['projetos/create'] = 'projetos/create';
 $route['projetos/view/(:any)'] = 'projetos/view/$1';
-$route['projetos/update/(:any)'] = 'projetos/update/$1';
-$route['projetos/delete/(:any)'] = 'projetos/delete/$1';
 
 
 

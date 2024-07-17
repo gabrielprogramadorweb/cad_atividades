@@ -18,10 +18,5 @@ class Projeto_model extends CI_Model {
     public function set_projeto($data) {
         return $this->db->insert('projeto', $data);
     }
-
-    public function update_projeto($id, $data) {
-        $this->db->where('id', $id);
-        return $this->db->update('projeto', $data);
-    }
 }
 ?>
