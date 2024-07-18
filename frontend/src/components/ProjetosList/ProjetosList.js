@@ -18,17 +18,18 @@ const ProjetosList = () => {
     const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
     const [projetoToDelete, setProjetoToDelete] = useState(null);
 
+    const fetchProjetos = async () => {
+        try {
+            const projetosResult = await getProjetos();
+            console.log('Projetos buscados:', projetosResult);
+            setProjetos(projetosResult);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const projetosResult = await getProjetos();
-                console.log('Projetos buscados:', projetosResult);
-                setProjetos(projetosResult);
-            } catch (error) {
-                setError(error.message);
-            }
-        };
-        fetchData();
+        fetchProjetos();
     }, []);
 
     const handleDelete = (id) => {
@@ -59,6 +60,7 @@ const ProjetosList = () => {
                 projeto.id === updatedProjeto.id ? updatedProjetoResponse : projeto
             ));
             setShowEditModal(false);
+            fetchProjetos();
         } catch (error) {
             setError(error.message);
         }
@@ -68,6 +70,7 @@ const ProjetosList = () => {
         try {
             const createdProjeto = await createProjeto(newProjeto);
             setProjetos([...projetos, createdProjeto]);
+            fetchProjetos();
         } catch (error) {
             setError(error.message);
         }
@@ -78,7 +81,7 @@ const ProjetosList = () => {
     };
 
     const filteredProjetos = projetos.filter(projeto =>
-        projeto.descricao && projeto.descricao.toLowerCase().includes(searchTerm.toLowerCase())
+        projeto.id && projeto.id.toString().toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -92,8 +95,8 @@ const ProjetosList = () => {
 
     return (
         <div className="container mt-5">
-            <h1 className="mb-4">Lista de Projetos</h1>
-            <Button className="mb-3" onClick={() => setShowCadastroProjetoModal(true)}>Cadastrar Projeto</Button>
+            <h3 className="mb-2">Lista de Projetos</h3>
+            <Button className="mb-2" onClick={() => setShowCadastroProjetoModal(true)}>Cadastrar Projeto</Button>
             <FormControl
                 type="text"
                 placeholder="Pesquisar projetos"
@@ -102,8 +105,8 @@ const ProjetosList = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
             <Table striped bordered hover responsive>
-                <thead className="thead-dark">
-                <tr>
+                <thead >
+                <tr className="bg-primary">
                     <th>ID</th>
                     <th>Descrição</th>
                     <th>Ações</th>
@@ -122,13 +125,18 @@ const ProjetosList = () => {
                 ))}
                 </tbody>
             </Table>
-            <Pagination>
-                {[...Array(totalPages)].map((_, index) => (
-                    <Pagination.Item key={index + 1} active={index + 1 === currentPage} onClick={() => handlePageChange(index + 1)}>
-                        {index + 1}
-                    </Pagination.Item>
-                ))}
-            </Pagination>
+            <div className="d-flex justify-content-between align-items-center mt-2">
+                <div>
+                    Mostrando de {indexOfFirstItem + 1} a {indexOfLastItem > filteredProjetos.length ? filteredProjetos.length : indexOfLastItem} de {filteredProjetos.length} resultados
+                </div>
+                <Pagination>
+                    {[...Array(totalPages)].map((_, index) => (
+                        <Pagination.Item key={index + 1} active={index + 1 === currentPage} onClick={() => handlePageChange(index + 1)}>
+                            {index + 1}
+                        </Pagination.Item>
+                    ))}
+                </Pagination>
+            </div>
             {selectedProjeto && (
                 <EditProjetoModal
                     show={showEditModal}

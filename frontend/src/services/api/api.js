@@ -1,6 +1,14 @@
 const API_URL = 'http://localhost:8000/index.php/atividades/';
 const API_URL_PROJETOS = 'http://localhost:8000/index.php/projetos/';
 
+const handleResponse = async (response) => {
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`API Error: ${response.status} ${response.statusText} - ${errorText}`);
+        throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+    return await response.json();
+};
 export const getAtividades = async () => {
     try {
         const response = await fetch(API_URL);
@@ -37,17 +45,9 @@ export const createAtividade = async (atividade) => {
             body: JSON.stringify(atividade),
             headers: { 'Content-Type': 'application/json' },
         });
-        if (!response.ok) {
-            console.error('Failed to create atividade:', response.status, response.statusText);
-            const errorText = await response.text();
-            console.error('Error response text:', errorText);
-            throw new Error(`Failed to create atividade: ${response.status} ${response.statusText}`);
-        }
-        const jsonResponse = await response.json();
-        console.log('Response from server:', jsonResponse);
-        return jsonResponse;
+        return await handleResponse(response);
     } catch (error) {
-        console.error('Failed to fetch:', error);
+        console.error('Failed to create atividade:', error);
         throw error;
     }
 };
