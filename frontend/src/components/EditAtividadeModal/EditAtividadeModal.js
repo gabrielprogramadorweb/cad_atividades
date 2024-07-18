@@ -4,13 +4,13 @@ import { Modal, Button, Form } from 'react-bootstrap';
 const EditAtividadeModal = ({ show, handleClose, atividade, handleSave, projetos }) => {
     const [formData, setFormData] = useState({
         ...atividade,
-        projetoId: atividade.idProjeto || '' // Garantir que o estado inicial contém o projeto associado
+        projetoId: atividade.idProjeto || ''
     });
 
     useEffect(() => {
         setFormData({
             ...atividade,
-            projetoId: atividade.idProjeto || '' // Atualizar o estado quando a atividade mudar
+            projetoId: atividade.idProjeto || ''
         });
     }, [atividade]);
 

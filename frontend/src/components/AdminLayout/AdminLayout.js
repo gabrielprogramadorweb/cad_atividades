@@ -16,9 +16,9 @@ const AdminLayout = () => {
                     <Topbar />
                     <div className="container-fluid">
                         <Routes>
-                            <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/dashboard"  element={<Dashboard />} />
                             <Route path="/atividades" element={<AtividadesList />} />
-                            <Route path="/projetos" element={<ProjetosList />} />
+                            <Route path="/projetos"   element={<ProjetosList />} />
                         </Routes>
                     </div>
                 </div>
