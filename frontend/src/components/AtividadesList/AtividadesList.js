@@ -19,28 +19,28 @@ const AtividadesList = () => {
     const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
     const [atividadeToDelete, setAtividadeToDelete] = useState(null);
 
+    const fetchAtividades = async () => {
+        try {
+            const atividadesResult = await getAtividades();
+            const projetosResult = await getProjetos();
+
+            const atividadesComProjetos = atividadesResult.map(atividade => {
+                const projeto = projetosResult.find(projeto => projeto.id === atividade.idProjeto);
+                return {
+                    ...atividade,
+                    projetoDescricao: projeto ? projeto.descricao : 'Projeto não encontrado'
+                };
+            });
+
+            setAtividades(atividadesComProjetos);
+            setProjetos(projetosResult);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const atividadesResult = await getAtividades();
-                const projetosResult = await getProjetos();
-
-                // Associar projetos às atividades
-                const atividadesComProjetos = atividadesResult.map(atividade => {
-                    const projeto = projetosResult.find(projeto => projeto.id === atividade.idProjeto);
-                    return {
-                        ...atividade,
-                        projetoDescricao: projeto ? projeto.descricao : 'Projeto não encontrado'
-                    };
-                });
-
-                setAtividades(atividadesComProjetos);
-                setProjetos(projetosResult);
-            } catch (error) {
-                setError(error.message);
-            }
-        };
-        fetchData();
+        fetchAtividades();
     }, []);
 
     const handleDelete = (id) => {
@@ -66,10 +66,17 @@ const AtividadesList = () => {
 
     const handleSaveEdit = async (updatedAtividade) => {
         try {
-            const { projetoDescricao, ...atividadeData } = updatedAtividade; // Remover projetoDescricao
+            const { projetoDescricao, ...atividadeData } = updatedAtividade;
             const updatedAtividadeResponse = await updateAtividade(updatedAtividade.id, atividadeData);
+
+            const projeto = projetos.find(projeto => projeto.id === updatedAtividadeResponse.idProjeto);
+            const atividadeComProjeto = {
+                ...updatedAtividadeResponse,
+                projetoDescricao: projeto ? projeto.descricao : 'Projeto não encontrado'
+            };
+
             setAtividades(atividades.map(atividade =>
-                atividade.id === updatedAtividade.id ? updatedAtividadeResponse : atividade
+                atividade.id === updatedAtividadeResponse.id ? atividadeComProjeto : atividade
             ));
             setShowEditModal(false);
         } catch (error) {
@@ -80,7 +87,16 @@ const AtividadesList = () => {
     const handleSaveCadastroAtividade = async (newAtividade) => {
         try {
             const createdAtividade = await createAtividade(newAtividade);
-            setAtividades([...atividades, createdAtividade]);
+
+            const projeto = projetos.find(projeto => projeto.id === createdAtividade.idProjeto);
+            const atividadeComProjeto = {
+                ...createdAtividade,
+                projetoDescricao: projeto ? projeto.descricao : 'Projeto não encontrado'
+            };
+
+            setAtividades(prevAtividades => [...prevAtividades, atividadeComProjeto]);
+            setShowCadastroAtividadeModal(false);
+            fetchAtividades();
         } catch (error) {
             setError(error.message);
         }
@@ -100,7 +116,7 @@ const AtividadesList = () => {
     };
 
     const filteredAtividades = atividades.filter(atividade =>
-        atividade.descricao && atividade.descricao.toLowerCase().includes(searchTerm.toLowerCase())
+        atividade.id && atividade.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -124,7 +140,7 @@ const AtividadesList = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
             <Table striped bordered hover responsive>
-                <thead className="thead-dark">
+                <thead>
                 <tr>
                     <th>ID</th>
                     <th>Data Cadastro</th>
@@ -148,13 +164,18 @@ const AtividadesList = () => {
                 ))}
                 </tbody>
             </Table>
-            <Pagination>
-                {[...Array(totalPages)].map((_, index) => (
-                    <Pagination.Item key={index + 1} active={index + 1 === currentPage} onClick={() => handlePageChange(index + 1)}>
-                        {index + 1}
-                    </Pagination.Item>
-                ))}
-            </Pagination>
+            <div className="d-flex justify-content-between align-items-center mt-2">
+                <div>
+                    Mostrando de {indexOfFirstItem + 1} a {indexOfLastItem > filteredAtividades.length ? filteredAtividades.length : indexOfLastItem} de {filteredAtividades.length} resultados
+                </div>
+                <Pagination>
+                    {[...Array(totalPages)].map((_, index) => (
+                        <Pagination.Item key={index + 1} active={index + 1 === currentPage} onClick={() => handlePageChange(index + 1)}>
+                            {index + 1}
+                        </Pagination.Item>
+                    ))}
+                </Pagination>
+            </div>
             {selectedAtividade && (
                 <EditAtividadeModal
                     show={showEditModal}
