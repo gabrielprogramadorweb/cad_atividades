@@ -80,11 +80,16 @@ const Dashboard = () => {
 
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
+    const getProjectDescription = (idProjeto) => {
+        const projeto = projetos.find(proj => proj.id === idProjeto);
+        return projeto ? projeto.descricao : 'Projeto não encontrado';
+    };
+
     return (
         <div className="container mt-5">
-            <h1 className="mb-4">Dashboard</h1>
+            <h2 className="mb-2">Dashboard</h2>
 
-            <Row className="mb-4">
+            <Row className="mb-2">
                 <Col>
                     <FormControl
                         type="date"
@@ -102,7 +107,7 @@ const Dashboard = () => {
                     />
                 </Col>
                 <Col>
-                    <Button variant="primary" onClick={handleDateFilter}>Filter</Button>
+                    <Button variant="primary" onClick={handleDateFilter}>Filtrar Projetos por data</Button>
                 </Col>
             </Row>
 
@@ -168,7 +173,7 @@ const Dashboard = () => {
                         <td>{atividade.id}</td>
                         <td>{atividade.dataCadastro}</td>
                         <td>{atividade.descricao}</td>
-                        <td>{atividade.idProjeto}</td>
+                        <td>{getProjectDescription(atividade.idProjeto)}</td>
                     </tr>
                 ))}
                 </tbody>

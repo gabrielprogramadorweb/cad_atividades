@@ -129,8 +129,8 @@ const AtividadesList = () => {
     }
 
     return (
-        <div className="container mt-5">
-            <h3 className="mb-2">Lista de Atividades</h3>
+        <div className="container">
+            <h2 className="">Lista de Atividades</h2>
             <Button className="mb-2" onClick={() => setShowCadastroAtividadeModal(true)}>Cadastrar Atividade</Button>
             <FormControl
                 type="text"

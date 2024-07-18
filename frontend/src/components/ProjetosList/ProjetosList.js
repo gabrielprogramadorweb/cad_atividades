@@ -94,8 +94,8 @@ const ProjetosList = () => {
     }
 
     return (
-        <div className="container mt-5">
-            <h3 className="mb-2">Lista de Projetos</h3>
+        <div className="container">
+            <h2 className="">Lista de Projetos</h2>
             <Button className="mb-2" onClick={() => setShowCadastroProjetoModal(true)}>Cadastrar Projeto</Button>
             <FormControl
                 type="text"
