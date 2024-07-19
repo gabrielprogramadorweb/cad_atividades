@@ -5,82 +5,87 @@ import { getAtividades, getProjetos } from '../../services/api/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
-    const [chartData, setChartData] = useState([]);
-    const [pieChartData, setPieChartData] = useState([]);
-    const [lineChartData, setLineChartData] = useState([]);
-    const [recentAtividades, setRecentAtividades] = useState([]);
+    const [dadosGraficoBarras, setDadosGraficoBarras] = useState([]);
+    const [dadosGraficoPizza, setDadosGraficoPizza] = useState([]);
+    const [dadosGraficoLinha, setDadosGraficoLinha] = useState([]);
+    const [atividadesRecentes, setAtividadesRecentes] = useState([]);
     const [atividades, setAtividades] = useState([]);
     const [projetos, setProjetos] = useState([]);
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
+    const [dataInicio, setDataInicio] = useState('');
+    const [dataFim, setDataFim] = useState('');
 
     useEffect(() => {
-        const fetchData = async () => {
+        const buscarDados = async () => {
             try {
-                const atividadesResult = await getAtividades();
-                const projetosResult = await getProjetos();
+                const resultadoAtividades = await getAtividades();
+                const resultadoProjetos = await getProjetos();
 
-                setAtividades(atividadesResult);
-                setProjetos(projetosResult);
-                filterData(atividadesResult, projetosResult);
-            } catch (error) {
-                console.error("Error fetching data:", error);
+                setAtividades(resultadoAtividades);
+                setProjetos(resultadoProjetos);
+                filtrarDados(resultadoAtividades, resultadoProjetos);
+            } catch (erro) {
+                console.error("Erro ao buscar dados:", erro);
             }
         };
 
-        fetchData();
+        buscarDados();
     }, []);
 
-    const filterData = (atividadesResult, projetosResult) => {
-        const filteredAtividades = atividadesResult.filter(atividade => {
-            const atividadeDate = new Date(atividade.dataCadastro);
-            const start = startDate ? new Date(startDate) : new Date('1970-01-01');
-            const end = endDate ? new Date(endDate) : new Date();
-            return atividadeDate >= start && atividadeDate <= end;
+    const formatarData = (data) => {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        return new Date(data).toLocaleDateString('pt-BR', options);
+    };
+
+    const filtrarDados = (resultadoAtividades, resultadoProjetos) => {
+        const atividadesFiltradas = resultadoAtividades.filter(atividade => {
+            const dataAtividade = new Date(atividade.dataCadastro);
+            const inicio = dataInicio ? new Date(dataInicio) : new Date('1970-01-01');
+            const fim = dataFim ? new Date(dataFim) : new Date();
+            return dataAtividade >= inicio && dataAtividade <= fim;
         });
 
-        const data = projetosResult.map(projeto => {
-            const atividadesDoProjeto = filteredAtividades.filter(atividade => atividade.idProjeto === projeto.id);
+        const dados = resultadoProjetos.map(projeto => {
+            const atividadesDoProjeto = atividadesFiltradas.filter(atividade => atividade.idProjeto === projeto.id);
             return {
-                name: projeto.descricao,
-                atividadesCount: atividadesDoProjeto.length,
+                nome: projeto.descricao,
+                quantidadeAtividades: atividadesDoProjeto.length,
             };
         });
 
-        const pieData = projetosResult.map(projeto => {
-            const atividadesDoProjeto = filteredAtividades.filter(atividade => atividade.idProjeto === projeto.id);
+        const dadosPizza = resultadoProjetos.map(projeto => {
+            const atividadesDoProjeto = atividadesFiltradas.filter(atividade => atividade.idProjeto === projeto.id);
             return {
-                name: projeto.descricao,
-                value: atividadesDoProjeto.length,
+                nome: projeto.descricao,
+                valor: atividadesDoProjeto.length,
             };
         });
 
-        const lineData = filteredAtividades.map(atividade => ({
-            date: atividade.dataCadastro,
-            atividadesCount: 1,
+        const dadosLinha = atividadesFiltradas.map(atividade => ({
+            data: formatarData(atividade.dataCadastro),
+            quantidadeAtividades: 1,
         })).reduce((acc, curr) => {
-            const found = acc.find(item => item.date === curr.date);
-            if (found) {
-                found.atividadesCount += 1;
+            const encontrado = acc.find(item => item.data === curr.data);
+            if (encontrado) {
+                encontrado.quantidadeAtividades += 1;
             } else {
                 acc.push(curr);
             }
             return acc;
         }, []);
 
-        setChartData(data);
-        setPieChartData(pieData);
-        setLineChartData(lineData);
-        setRecentAtividades(filteredAtividades.slice(-5));
+        setDadosGraficoBarras(dados);
+        setDadosGraficoPizza(dadosPizza);
+        setDadosGraficoLinha(dadosLinha);
+        setAtividadesRecentes(atividadesFiltradas.slice(-5));
     };
 
-    const handleDateFilter = () => {
-        filterData(atividades, projetos);
+    const lidarComFiltroData = () => {
+        filtrarDados(atividades, projetos);
     };
 
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+    const CORES = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
-    const getProjectDescription = (idProjeto) => {
+    const obterDescricaoProjeto = (idProjeto) => {
         const projeto = projetos.find(proj => proj.id === idProjeto);
         return projeto ? projeto.descricao : 'Projeto não encontrado';
     };
@@ -93,32 +98,32 @@ const Dashboard = () => {
                 <Col>
                     <FormControl
                         type="date"
-                        placeholder="Start Date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
+                        placeholder="Data de Início"
+                        value={dataInicio}
+                        onChange={(e) => setDataInicio(e.target.value)}
                     />
                 </Col>
                 <Col>
                     <FormControl
                         type="date"
-                        placeholder="End Date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
+                        placeholder="Data de Fim"
+                        value={dataFim}
+                        onChange={(e) => setDataFim(e.target.value)}
                     />
                 </Col>
                 <Col>
-                    <Button variant="primary" onClick={handleDateFilter}>Filtrar Projetos por data</Button>
+                    <Button variant="primary" onClick={lidarComFiltroData}>Filtrar Projetos por data</Button>
                 </Col>
             </Row>
 
             <ResponsiveContainer width="100%" height={400} className="mb-4">
-                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <BarChart data={dadosGraficoBarras} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="nome" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="atividadesCount" fill="#8884d8" />
+                    <Bar dataKey="quantidadeAtividades" fill="#8884d8" />
                 </BarChart>
             </ResponsiveContainer>
 
@@ -127,16 +132,16 @@ const Dashboard = () => {
                     <ResponsiveContainer width="100%" height={400}>
                         <PieChart>
                             <Pie
-                                data={pieChartData}
+                                data={dadosGraficoPizza}
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={150}
                                 fill="#8884d8"
-                                dataKey="value"
+                                dataKey="valor"
                                 label
                             >
-                                {pieChartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                {dadosGraficoPizza.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={CORES[index % CORES.length]} />
                                 ))}
                             </Pie>
                             <Tooltip />
@@ -145,13 +150,13 @@ const Dashboard = () => {
                 </Col>
                 <Col md={6}>
                     <ResponsiveContainer width="100%" height={400}>
-                        <LineChart data={lineChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                        <LineChart data={dadosGraficoLinha} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" />
+                            <XAxis dataKey="data" />
                             <YAxis />
                             <Tooltip />
                             <Legend />
-                            <Line type="monotone" dataKey="atividadesCount" stroke="#8884d8" />
+                            <Line type="monotone" dataKey="quantidadeAtividades" stroke="#8884d8" />
                         </LineChart>
                     </ResponsiveContainer>
                 </Col>
@@ -168,12 +173,12 @@ const Dashboard = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {recentAtividades.map((atividade) => (
+                {atividadesRecentes.map((atividade) => (
                     <tr key={atividade.id}>
                         <td>{atividade.id}</td>
-                        <td>{atividade.dataCadastro}</td>
+                        <td>{formatarData(atividade.dataCadastro)}</td>
                         <td>{atividade.descricao}</td>
-                        <td>{getProjectDescription(atividade.idProjeto)}</td>
+                        <td>{obterDescricaoProjeto(atividade.idProjeto)}</td>
                     </tr>
                 ))}
                 </tbody>

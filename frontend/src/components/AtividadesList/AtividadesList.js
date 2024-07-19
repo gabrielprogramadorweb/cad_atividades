@@ -4,28 +4,28 @@ import { getAtividades, deleteAtividade, updateAtividade, createAtividade, creat
 import './AtividadesList.css';
 import EditAtividadeModal from '../Modal/EditAtividadeModal/EditAtividadeModal';
 import CadastroAtividadeModal from '../Modal/CadastroAtividadeModal/CadastroAtividadeModal';
-import ConfirmDeleteAtividadeModal from "../Modal/ConfirmDeleteAtividadeModal/ConfirmDeleteAtividadeModal";
+import ConfirmeDeleteAtividadeModal from "../Modal/ConfirmeDeleteAtividadeModal/ConfirmeDeleteAtividadeModal";
 
 const AtividadesList = () => {
     const [atividades, setAtividades] = useState([]);
     const [projetos, setProjetos] = useState([]);
-    const [selectedAtividade, setSelectedAtividade] = useState(null);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [showCadastroAtividadeModal, setShowCadastroAtividadeModal] = useState(false);
-    const [error, setError] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [searchTerm, setSearchTerm] = useState('');
-    const itemsPerPage = 5;
-    const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
-    const [atividadeToDelete, setAtividadeToDelete] = useState(null);
+    const [atividadeSelecionada, setAtividadeSelecionada] = useState(null);
+    const [mostrarModalEdicao, setMostrarModalEdicao] = useState(false);
+    const [mostrarModalCadastroAtividade, setMostrarModalCadastroAtividade] = useState(false);
+    const [erro, setErro] = useState(null);
+    const [paginaAtual, setPaginaAtual] = useState(1);
+    const [termoDeBusca, setTermoDeBusca] = useState('');
+    const itensPorPagina = 5;
+    const [mostrarModalConfirmacaoExclusao, setMostrarModalConfirmacaoExclusao] = useState(false);
+    const [atividadeParaExcluir, setAtividadeParaExcluir] = useState(null);
 
-    const fetchAtividades = async () => {
+    const buscarAtividades = async () => {
         try {
-            const atividadesResult = await getAtividades();
-            const projetosResult = await getProjetos();
+            const resultadoAtividades = await getAtividades();
+            const resultadoProjetos = await getProjetos();
 
-            const atividadesComProjetos = atividadesResult.map(atividade => {
-                const projeto = projetosResult.find(projeto => projeto.id === atividade.idProjeto);
+            const atividadesComProjetos = resultadoAtividades.map(atividade => {
+                const projeto = resultadoProjetos.find(projeto => projeto.id === atividade.idProjeto);
                 return {
                     ...atividade,
                     projetoDescricao: projeto ? projeto.descricao : 'Projeto não encontrado'
@@ -33,111 +33,107 @@ const AtividadesList = () => {
             });
 
             setAtividades(atividadesComProjetos);
-            setProjetos(projetosResult);
+            setProjetos(resultadoProjetos);
         } catch (error) {
-            setError(error.message);
+            setErro(error.message);
         }
     };
 
     useEffect(() => {
-        fetchAtividades();
+        buscarAtividades();
     }, []);
 
-    const handleDelete = (id) => {
-        setAtividadeToDelete(id);
-        setShowConfirmDeleteModal(true);
+    const formatarData = (data) => {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        return new Date(data).toLocaleDateString('pt-BR', options);
     };
 
-    const confirmDelete = async () => {
+    const lidarComExclusao = (id) => {
+        setAtividadeParaExcluir(id);
+        setMostrarModalConfirmacaoExclusao(true);
+    };
+
+    const confirmarExclusao = async () => {
         try {
-            await deleteAtividade(atividadeToDelete);
-            setAtividades(atividades.filter(atividade => atividade.id !== atividadeToDelete));
-            setShowConfirmDeleteModal(false);
-            setAtividadeToDelete(null);
+            await deleteAtividade(atividadeParaExcluir);
+            setAtividades(atividades.filter(atividade => atividade.id !== atividadeParaExcluir));
+            setMostrarModalConfirmacaoExclusao(false);
+            setAtividadeParaExcluir(null);
         } catch (error) {
-            setError(error.message);
+            setErro(error.message);
         }
     };
 
-    const handleEdit = (atividade) => {
-        setSelectedAtividade(atividade);
-        setShowEditModal(true);
+    const lidarComEdicao = (atividade) => {
+        setAtividadeSelecionada(atividade);
+        setMostrarModalEdicao(true);
     };
 
-    const handleSaveEdit = async (updatedAtividade) => {
+    const salvarEdicao = async (atividadeAtualizada) => {
         try {
-            const { projetoDescricao, ...atividadeData } = updatedAtividade;
-            const updatedAtividadeResponse = await updateAtividade(updatedAtividade.id, atividadeData);
+            const { projetoDescricao, ...dadosAtividade } = atividadeAtualizada;
+            const respostaAtividadeAtualizada = await updateAtividade(atividadeAtualizada.id, dadosAtividade);
 
-            const projeto = projetos.find(projeto => projeto.id === updatedAtividadeResponse.idProjeto);
+            const projeto = projetos.find(projeto => projeto.id === respostaAtividadeAtualizada.idProjeto);
             const atividadeComProjeto = {
-                ...updatedAtividadeResponse,
+                ...respostaAtividadeAtualizada,
                 projetoDescricao: projeto ? projeto.descricao : 'Projeto não encontrado'
             };
 
             setAtividades(atividades.map(atividade =>
-                atividade.id === updatedAtividadeResponse.id ? atividadeComProjeto : atividade
+                atividade.id === respostaAtividadeAtualizada.id ? atividadeComProjeto : atividade
             ));
-            setShowEditModal(false);
+            setMostrarModalEdicao(false);
         } catch (error) {
-            setError(error.message);
+            setErro(error.message);
         }
     };
 
-    const handleSaveCadastroAtividade = async (newAtividade) => {
+    const salvarCadastroAtividade = async (novaAtividade) => {
         try {
-            const createdAtividade = await createAtividade(newAtividade);
+            const atividadeCriada = await createAtividade(novaAtividade);
 
-            const projeto = projetos.find(projeto => projeto.id === createdAtividade.idProjeto);
+            const projeto = projetos.find(projeto => projeto.id === atividadeCriada.idProjeto);
             const atividadeComProjeto = {
-                ...createdAtividade,
+                ...atividadeCriada,
                 projetoDescricao: projeto ? projeto.descricao : 'Projeto não encontrado'
             };
 
             setAtividades(prevAtividades => [...prevAtividades, atividadeComProjeto]);
-            setShowCadastroAtividadeModal(false);
-            fetchAtividades();
+            setMostrarModalCadastroAtividade(false);
+            buscarAtividades();
         } catch (error) {
-            setError(error.message);
+            setErro(error.message);
         }
     };
 
-    const handleSaveCadastroProjeto = async (newProjeto) => {
-        try {
-            const createdProjeto = await createProjeto(newProjeto);
-            setProjetos([...projetos, createdProjeto]);
-        } catch (error) {
-            setError(error.message);
-        }
+    const mudarPagina = (numeroDaPagina) => {
+        setPaginaAtual(numeroDaPagina);
     };
 
-    const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber);
-    };
-
-    const filteredAtividades = atividades.filter(atividade =>
-        atividade.id && atividade.id.toLowerCase().includes(searchTerm.toLowerCase())
+    const atividadesFiltradas = atividades.filter(atividade =>
+        atividade.id && atividade.id.toLowerCase().includes(termoDeBusca.toLowerCase())
     );
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredAtividades.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredAtividades.length / itemsPerPage);
+    const indexDoUltimoItem = paginaAtual * itensPorPagina;
+    const indexDoPrimeiroItem = indexDoUltimoItem - itensPorPagina;
+    const itensAtuais = atividadesFiltradas.slice(indexDoPrimeiroItem, indexDoUltimoItem);
+    const totalDePaginas = Math.ceil(atividadesFiltradas.length / itensPorPagina);
 
-    if (error) {
-        return <div className="alert alert-danger" role="alert">Error: {error}</div>;
+    if (erro) {
+        return <div className="alert alert-danger" role="alert">Erro: {erro}</div>;
     }
 
     return (
         <div className="container">
             <h2 className="">Lista de Atividades</h2>
-            <Button className="mb-2" onClick={() => setShowCadastroAtividadeModal(true)}>Cadastrar Atividade</Button>
+            <Button className="mb-2" onClick={() => setMostrarModalCadastroAtividade(true)}>Cadastrar Atividade</Button>
             <FormControl
                 type="text"
                 placeholder="Pesquisar atividades"
                 className="mb-3"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={termoDeBusca}
+                onChange={(e) => setTermoDeBusca(e.target.value)}
             />
             <Table striped bordered hover responsive>
                 <thead>
@@ -150,15 +146,15 @@ const AtividadesList = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {currentItems.map((atividade) => (
+                {itensAtuais.map((atividade) => (
                     <tr key={atividade.id}>
                         <td>{atividade.id}</td>
-                        <td>{atividade.dataCadastro}</td>
+                        <td>{formatarData(atividade.dataCadastro)}</td>
                         <td>{atividade.descricao}</td>
                         <td>{atividade.projetoDescricao}</td>
                         <td>
-                            <Button variant="danger" className="mr-2" onClick={() => handleDelete(atividade.id)}>Excluir</Button>
-                            <Button variant="warning" onClick={() => handleEdit(atividade)}>Editar</Button>
+                            <Button variant="danger" className="mr-2" onClick={() => lidarComExclusao(atividade.id)}>Excluir</Button>
+                            <Button variant="warning" onClick={() => lidarComEdicao(atividade)}>Editar</Button>
                         </td>
                     </tr>
                 ))}
@@ -166,35 +162,35 @@ const AtividadesList = () => {
             </Table>
             <div className="d-flex justify-content-between align-items-center mt-2">
                 <div>
-                    Mostrando de {indexOfFirstItem + 1} a {indexOfLastItem > filteredAtividades.length ? filteredAtividades.length : indexOfLastItem} de {filteredAtividades.length} resultados
+                    Mostrando de {indexDoPrimeiroItem + 1} a {indexDoUltimoItem > atividadesFiltradas.length ? atividadesFiltradas.length : indexDoUltimoItem} de {atividadesFiltradas.length} resultados
                 </div>
                 <Pagination>
-                    {[...Array(totalPages)].map((_, index) => (
-                        <Pagination.Item key={index + 1} active={index + 1 === currentPage} onClick={() => handlePageChange(index + 1)}>
+                    {[...Array(totalDePaginas)].map((_, index) => (
+                        <Pagination.Item key={index + 1} active={index + 1 === paginaAtual} onClick={() => mudarPagina(index + 1)}>
                             {index + 1}
                         </Pagination.Item>
                     ))}
                 </Pagination>
             </div>
-            {selectedAtividade && (
+            {atividadeSelecionada && (
                 <EditAtividadeModal
-                    show={showEditModal}
-                    handleClose={() => setShowEditModal(false)}
-                    atividade={selectedAtividade}
-                    handleSave={handleSaveEdit}
+                    show={mostrarModalEdicao}
+                    handleClose={() => setMostrarModalEdicao(false)}
+                    atividade={atividadeSelecionada}
+                    handleSave={salvarEdicao}
                     projetos={projetos}
                 />
             )}
             <CadastroAtividadeModal
-                show={showCadastroAtividadeModal}
-                handleClose={() => setShowCadastroAtividadeModal(false)}
-                handleSave={handleSaveCadastroAtividade}
+                show={mostrarModalCadastroAtividade}
+                handleClose={() => setMostrarModalCadastroAtividade(false)}
+                handleSave={salvarCadastroAtividade}
                 projetos={projetos}
             />
-            <ConfirmDeleteAtividadeModal
-                show={showConfirmDeleteModal}
-                handleClose={() => setShowConfirmDeleteModal(false)}
-                handleConfirm={confirmDelete}
+            <ConfirmeDeleteAtividadeModal
+                show={mostrarModalConfirmacaoExclusao}
+                handleClose={() => setMostrarModalConfirmacaoExclusao(false)}
+                handleConfirm={confirmarExclusao}
             />
         </div>
     );
