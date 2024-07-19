@@ -50,21 +50,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |		my-controller/my-method	-> my_controller/my_method
 */
 
-$route['default_controller'] = 'welcome';
-$route['404_override'] = '';
-$route['translate_uri_dashes'] = FALSE;
+$route['default_controller']       = 'welcome';
+$route['404_override']             = '';
+$route['translate_uri_dashes']     = FALSE;
 
 // Rota para atividades
-$route['atividades'] = 'atividades';
-$route['atividades/create'] = 'atividades/create';
-$route['atividades/view/(:any)'] = 'atividades/view/$1';
+$route['atividades']               = 'atividades';
+$route['atividades/create']        = 'atividades/create';
+$route['atividades/view/(:any)']   = 'atividades/view/$1';
 $route['atividades/update/(:any)'] = 'atividades/update/$1';
 $route['atividades/delete/(:any)'] = 'atividades/delete/$1';
 
 // Rota para projetos
-$route['projetos'] = 'projetos';
-$route['projetos/create'] = 'projetos/create';
-$route['projetos/view/(:any)'] = 'projetos/view/$1';
-$route['projetos/update/(:any)'] = 'projetos/update/$1';
-$route['projetos/delete/(:any)'] = 'projetos/delete/$1';
+$route['projetos']                 = 'projetos';
+$route['projetos/create']          = 'projetos/create';
+$route['projetos/view/(:any)']     = 'projetos/view/$1';
+$route['projetos/update/(:any)']   = 'projetos/update/$1';
+$route['projetos/delete/(:any)']   = 'projetos/delete/$1';
 

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Pagination, FormControl } from 'react-bootstrap';
 import { getProjetos, deleteProjeto, updateProjeto, createProjeto } from '../../services/api/api';
 import './ProjetosList.css';
-import EditProjetoModal from '../Modal/EditProjetoModal';
-import CadastroProjetoModal from '../Modal/CadastroProjetoModal';
-import ConfirmDeleteProjetoModal from '../Modal/ConfirmDeleteProjetoModal';
+import EditProjetoModal from '../Modal/EditProjetoModal/EditProjetoModal';
+import CadastroProjetoModal from '../Modal/CadastroProjetoModal/CadastroProjetoModal';
+import ConfirmDeleteProjetoModal from '../Modal/ConfirmDeleteProjeto/ConfirmDeleteProjetoModal';
 
 const ProjetosList = () => {
     const [projetos, setProjetos] = useState([]);

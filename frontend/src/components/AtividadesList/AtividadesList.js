@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Pagination, FormControl } from 'react-bootstrap';
 import { getAtividades, deleteAtividade, updateAtividade, createAtividade, createProjeto, getProjetos } from '../../services/api/api';
 import './AtividadesList.css';
-import EditAtividadeModal from '../EditAtividadeModal/EditAtividadeModal';
-import CadastroAtividadeModal from '../CadastroAtividadeModal/CadastroAtividadeModal';
-import ConfirmDeleteAtividadeModal from "../Modal/ConfirmDeleteAtividadeModal";
+import EditAtividadeModal from '../Modal/EditAtividadeModal/EditAtividadeModal';
+import CadastroAtividadeModal from '../Modal/CadastroAtividadeModal/CadastroAtividadeModal';
+import ConfirmDeleteAtividadeModal from "../Modal/ConfirmDeleteAtividadeModal/ConfirmDeleteAtividadeModal";
 
 const AtividadesList = () => {
     const [atividades, setAtividades] = useState([]);
