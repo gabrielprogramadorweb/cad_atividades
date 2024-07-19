@@ -2,10 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
 const EditAtividadeModal = ({ show, handleClose, atividade, handleSave, projetos }) => {
-    const [formData, setFormData] = useState(atividade);
+    const [formData, setFormData] = useState({
+        ...atividade,
+        projetoId: atividade.idProjeto || ''
+    });
 
     useEffect(() => {
-        setFormData(atividade);
+        setFormData({
+            ...atividade,
+            projetoId: atividade.idProjeto || ''
+        });
     }, [atividade]);
 
     const handleChange = (e) => {
@@ -17,7 +23,8 @@ const EditAtividadeModal = ({ show, handleClose, atividade, handleSave, projetos
     };
 
     const handleSubmit = () => {
-        handleSave(formData);
+        handleSave({ ...formData, idProjeto: formData.projetoId });
+        console.log('registro novo de projeto:', JSON.stringify(formData));
     };
 
     return (
