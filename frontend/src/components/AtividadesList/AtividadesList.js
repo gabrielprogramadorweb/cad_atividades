@@ -4,7 +4,9 @@ import { getAtividades, deleteAtividade, updateAtividade, createAtividade, getPr
 import './AtividadesList.css';
 import EditAtividadeModal from '../Modal/EditAtividadeModal/EditAtividadeModal';
 import CadastroAtividadeModal from '../Modal/CadastroAtividadeModal/CadastroAtividadeModal';
-import ConfirmeDeleteAtividadeModal from "../Modal/ConfirmeDeleteAtividadeModal/ConfirmeDeleteAtividadeModal";
+import ConfirmeDeleteAtividadeModal from '../Modal/ConfirmeDeleteAtividadeModal/ConfirmeDeleteAtividadeModal';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AtividadesList = () => {
     const [atividades, setAtividades] = useState([]);
@@ -59,6 +61,7 @@ const AtividadesList = () => {
             setAtividades(atividades.filter(atividade => atividade.id !== atividadeParaExcluir));
             setMostrarModalConfirmacaoExclusao(false);
             setAtividadeParaExcluir(null);
+            toast.success("Atividade excluída com sucesso!");
         } catch (error) {
             setErro(error.message);
         }
@@ -80,10 +83,15 @@ const AtividadesList = () => {
                 projetoDescricao: projeto ? projeto.descricao : 'Projeto não encontrado'
             };
 
-            setAtividades(atividades.map(atividade =>
-                atividade.id === respostaAtividadeAtualizada.id ? atividadeComProjeto : atividade
-            ));
+            setAtividades(prevAtividades =>
+                prevAtividades.map(atividade =>
+                    atividade.id === respostaAtividadeAtualizada.id ? atividadeComProjeto : atividade
+                )
+            );
             setMostrarModalEdicao(false);
+            setAtividadeSelecionada(null);
+            toast.success("Atividade editada com sucesso!");
+            buscarAtividades();
         } catch (error) {
             setErro(error.message);
         }
@@ -104,6 +112,7 @@ const AtividadesList = () => {
 
             setAtividades(prevAtividades => [...prevAtividades, atividadeComProjeto]);
             setMostrarModalCadastroAtividade(false);
+            toast.success("Atividade criada com sucesso!");
             buscarAtividades();
         } catch (error) {
             setErro(error.message);
@@ -195,6 +204,7 @@ const AtividadesList = () => {
                 handleClose={() => setMostrarModalConfirmacaoExclusao(false)}
                 handleConfirm={confirmarExclusao}
             />
+            <ToastContainer />
         </div>
     );
 };

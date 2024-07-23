@@ -5,6 +5,8 @@ import './ProjetosList.css';
 import EditProjetoModal from '../Modal/EditProjetoModal/EditProjetoModal';
 import CadastroProjetoModal from '../Modal/CadastroProjetoModal/CadastroProjetoModal';
 import ConfirmeDeleteProjetoModal from '../Modal/ConfirmeDeleteProjeto/ConfirmeDeleteProjetoModal';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ProjetosList = () => {
     const [projetos, setProjetos] = useState([]);
@@ -42,6 +44,7 @@ const ProjetosList = () => {
             setProjetos(projetos.filter(projeto => projeto.id !== projetoParaDeletar));
             setMostrarConfirmDeleteModal(false);
             setProjetoParaDeletar(null);
+            toast.success("Projeto deletado com sucesso!");
         } catch (erro) {
             setErro(erro.message);
         }
@@ -60,6 +63,7 @@ const ProjetosList = () => {
             ));
             setMostrarEditarModal(false);
             buscarProjetos();
+            toast.success("Projeto atualizado com sucesso!");
         } catch (erro) {
             setErro(erro.message);
         }
@@ -69,6 +73,8 @@ const ProjetosList = () => {
         try {
             const projetoCriado = await createProjeto(novoProjeto);
             setProjetos([...projetos, projetoCriado]);
+            setMostrarCadastroProjetoModal(false);
+            toast.success("Projeto criado com sucesso!");
             buscarProjetos();
         } catch (erro) {
             setErro(erro.message);
@@ -154,6 +160,7 @@ const ProjetosList = () => {
                 handleClose={() => setMostrarConfirmDeleteModal(false)}
                 handleConfirm={confirmarDelecao}
             />
+            <ToastContainer />
         </div>
     );
 };
