@@ -30,7 +30,7 @@ const AtividadesList = () => {
                 const projeto = resultadoProjetos.find(projeto => projeto.id === atividade.idProjeto);
                 return {
                     ...atividade,
-                    projetoDescricao: projeto ? projeto.descricao : 'Projeto não encontrado'
+                    projetoDescricao: projeto ? projeto.descricao : ''
                 };
             });
 
@@ -80,7 +80,7 @@ const AtividadesList = () => {
             const projeto = projetos.find(projeto => projeto.id === respostaAtividadeAtualizada.idProjeto);
             const atividadeComProjeto = {
                 ...respostaAtividadeAtualizada,
-                projetoDescricao: projeto ? projeto.descricao : 'Projeto não encontrado'
+                projetoDescricao: projeto ? projeto.descricao : ''
             };
 
             setAtividades(prevAtividades =>
@@ -107,7 +107,7 @@ const AtividadesList = () => {
             const projeto = projetos.find(projeto => projeto.id === atividadeCriada.idProjeto);
             const atividadeComProjeto = {
                 ...atividadeCriada,
-                projetoDescricao: projeto ? projeto.descricao : 'Projeto não encontrado'
+                projetoDescricao: projeto ? projeto.descricao : ''
             };
 
             setAtividades(prevAtividades => [...prevAtividades, atividadeComProjeto]);

@@ -22,7 +22,7 @@ const Dashboard = () => {
 
                 setAtividades(resultadoAtividades);
                 setProjetos(resultadoProjetos);
-                filtrarDados(resultadoAtividades, resultadoProjetos);
+                mostrarTodosOsDados(resultadoAtividades, resultadoProjetos);
             } catch (erro) {
                 console.error("Erro ao buscar dados:", erro);
             }
@@ -36,16 +36,22 @@ const Dashboard = () => {
         return new Date(data).toLocaleDateString('pt-BR', options);
     };
 
-    const filtrarDados = (resultadoAtividades, resultadoProjetos) => {
-        const atividadesFiltradas = resultadoAtividades.filter(atividade => {
-            const dataAtividade = new Date(atividade.dataCadastro);
-            const inicio = dataInicio ? new Date(dataInicio) : new Date('1970-01-01');
-            const fim = dataFim ? new Date(dataFim) : new Date();
-            return dataAtividade >= inicio && dataAtividade <= fim;
-        });
+    const mostrarTodosOsDados = (resultadoAtividades, resultadoProjetos) => {
+        const dadosLinha = resultadoAtividades.map(atividade => ({
+            data: formatarData(atividade.dataCadastro),
+            quantidadeAtividades: 1,
+        })).reduce((acc, curr) => {
+            const encontrado = acc.find(item => item.data === curr.data);
+            if (encontrado) {
+                encontrado.quantidadeAtividades += 1;
+            } else {
+                acc.push(curr);
+            }
+            return acc;
+        }, []);
 
-        const dados = resultadoProjetos.map(projeto => {
-            const atividadesDoProjeto = atividadesFiltradas.filter(atividade => atividade.idProjeto === projeto.id);
+        const dadosBarras = resultadoProjetos.map(projeto => {
+            const atividadesDoProjeto = resultadoAtividades.filter(atividade => atividade.idProjeto === projeto.id);
             return {
                 nome: projeto.descricao,
                 quantidadeAtividades: atividadesDoProjeto.length,
@@ -53,6 +59,37 @@ const Dashboard = () => {
         });
 
         const dadosPizza = resultadoProjetos.map(projeto => {
+            const atividadesDoProjeto = resultadoAtividades.filter(atividade => atividade.idProjeto === projeto.id);
+            return {
+                nome: projeto.descricao,
+                valor: atividadesDoProjeto.length,
+            };
+        });
+
+        setDadosGraficoLinha(dadosLinha);
+        setDadosGraficoBarras(dadosBarras);
+        setDadosGraficoPizza(dadosPizza);
+        setAtividadesRecentes(resultadoAtividades.slice(-5));
+    };
+
+    const filtrarDados = () => {
+        const inicio = dataInicio ? new Date(dataInicio) : new Date('1970-01-01');
+        const fim = dataFim ? new Date(dataFim) : new Date();
+
+        const atividadesFiltradas = atividades.filter(atividade => {
+            const dataAtividade = new Date(atividade.dataCadastro);
+            return dataAtividade >= inicio && dataAtividade <= fim;
+        });
+
+        const dadosBarras = projetos.map(projeto => {
+            const atividadesDoProjeto = atividadesFiltradas.filter(atividade => atividade.idProjeto === projeto.id);
+            return {
+                nome: projeto.descricao,
+                quantidadeAtividades: atividadesDoProjeto.length,
+            };
+        });
+
+        const dadosPizza = projetos.map(projeto => {
             const atividadesDoProjeto = atividadesFiltradas.filter(atividade => atividade.idProjeto === projeto.id);
             return {
                 nome: projeto.descricao,
@@ -73,14 +110,10 @@ const Dashboard = () => {
             return acc;
         }, []);
 
-        setDadosGraficoBarras(dados);
+        setDadosGraficoBarras(dadosBarras);
         setDadosGraficoPizza(dadosPizza);
         setDadosGraficoLinha(dadosLinha);
         setAtividadesRecentes(atividadesFiltradas.slice(-5));
-    };
-
-    const lidarComFiltroData = () => {
-        filtrarDados(atividades, projetos);
     };
 
     const CORES = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
@@ -112,7 +145,7 @@ const Dashboard = () => {
                     />
                 </Col>
                 <Col>
-                    <Button variant="primary" onClick={lidarComFiltroData}>Filtrar Projetos por data</Button>
+                    <Button variant="primary" onClick={filtrarDados}>Filtrar Projetos por data</Button>
                 </Col>
             </Row>
 
