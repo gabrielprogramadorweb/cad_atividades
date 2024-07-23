@@ -115,7 +115,7 @@ const AtividadesList = () => {
     };
 
     const atividadesFiltradas = atividades.filter(atividade =>
-        atividade.descricao && atividade.descricao.toLowerCase().includes(termoDeBusca.toLowerCase())
+        atividade.id && atividade.id.toString().includes(termoDeBusca.toLowerCase())
     );
 
     const indexDoUltimoItem = paginaAtual * itensPorPagina;
