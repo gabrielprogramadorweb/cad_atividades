@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Pagination, FormControl } from 'react-bootstrap';
-import { getAtividades, deleteAtividade, updateAtividade, createAtividade, createProjeto, getProjetos } from '../../services/api/api';
+import { getAtividades, deleteAtividade, updateAtividade, createAtividade, getProjetos } from '../../services/api/api';
 import './AtividadesList.css';
 import EditAtividadeModal from '../Modal/EditAtividadeModal/EditAtividadeModal';
 import CadastroAtividadeModal from '../Modal/CadastroAtividadeModal/CadastroAtividadeModal';
@@ -91,6 +91,9 @@ const AtividadesList = () => {
 
     const salvarCadastroAtividade = async (novaAtividade) => {
         try {
+            if (!novaAtividade.dataCadastro) {
+                novaAtividade.dataCadastro = new Date().toISOString();
+            }
             const atividadeCriada = await createAtividade(novaAtividade);
 
             const projeto = projetos.find(projeto => projeto.id === atividadeCriada.idProjeto);
@@ -112,7 +115,7 @@ const AtividadesList = () => {
     };
 
     const atividadesFiltradas = atividades.filter(atividade =>
-        atividade.id && atividade.id.toLowerCase().includes(termoDeBusca.toLowerCase())
+        atividade.descricao && atividade.descricao.toLowerCase().includes(termoDeBusca.toLowerCase())
     );
 
     const indexDoUltimoItem = paginaAtual * itensPorPagina;

@@ -5,6 +5,7 @@ class Atividades extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
+        $this->load->library('doctrine');
         $this->load->model('Atividade_model');
         $this->load->helper('url_helper');
         $this->output->set_content_type('application/json');
@@ -22,10 +23,12 @@ class Atividades extends CI_Controller {
 
     public function index() {
         try {
+            log_message('debug', 'Entrando no método index.');
             $atividades = $this->Atividade_model->get_atividades();
+            log_message('debug', 'Atividades obtidas: ' . print_r($atividades, true));
             echo json_encode($atividades);
         } catch (Exception $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', 'Erro ao obter atividades: ' . $e->getMessage());
             $this->output->set_status_header(500);
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -53,6 +56,11 @@ class Atividades extends CI_Controller {
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new Exception('JSON decode error: ' . json_last_error_msg());
             }
+
+            if (!isset($data['dataCadastro'])) {
+                $data['dataCadastro'] = date('Y-m-d H:i:s');
+            }
+
             $this->Atividade_model->set_atividade($data);
             $this->output->set_status_header(201);
             echo json_encode(['status' => 'success']);
@@ -63,11 +71,13 @@ class Atividades extends CI_Controller {
         }
     }
 
+
     public function update($id) {
         try {
             $data = json_decode(file_get_contents("php://input"), true);
-            unset($data['projetoId']);
-
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new Exception('JSON decode error: ' . json_last_error_msg());
+            }
             if ($this->Atividade_model->update_atividade($id, $data)) {
                 $updatedAtividade = $this->Atividade_model->get_atividades($id);
                 $this->output

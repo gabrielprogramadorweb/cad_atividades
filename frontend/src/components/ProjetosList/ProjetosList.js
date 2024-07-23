@@ -21,7 +21,6 @@ const ProjetosList = () => {
     const buscarProjetos = async () => {
         try {
             const resultadoProjetos = await getProjetos();
-            console.log('Projetos buscados:', resultadoProjetos);
             setProjetos(resultadoProjetos);
         } catch (erro) {
             setErro(erro.message);
