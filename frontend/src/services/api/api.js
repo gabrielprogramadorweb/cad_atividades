@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000/index.php/atividades/';
+const API_URL_ATIVIDADES = 'http://localhost:8000/index.php/atividades/';
 const API_URL_PROJETOS = 'http://localhost:8000/index.php/projetos/';
 
 const handleResponse = async (response) => {
@@ -11,7 +11,7 @@ const handleResponse = async (response) => {
 };
 export const getAtividades = async () => {
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL_ATIVIDADES);
         if (!response.ok) {
             console.error('Falha ao buscar atividades:', response.status, response.statusText);
             throw new Error(`Falha ao buscar atividades: ${response.status} ${response.statusText}`);
@@ -25,7 +25,7 @@ export const getAtividades = async () => {
 
 export const getAtividadeById = async (id) => {
     try {
-        const response = await fetch(`${API_URL}view/${id}`);
+        const response = await fetch(`${API_URL_ATIVIDADES}view/${id}`);
         if (!response.ok) {
             console.error('Falha ao buscar atividade com id:', response.status, response.statusText);
             throw new Error(`Falha ao buscar atividade com id: ${response.status} ${response.statusText}`);
@@ -39,7 +39,7 @@ export const getAtividadeById = async (id) => {
 
 export const createAtividade = async (atividade) => {
     try {
-        const response = await fetch(`${API_URL}create`, {
+        const response = await fetch(`${API_URL_ATIVIDADES}create`, {
             method: 'POST',
             body: JSON.stringify(atividade),
             headers: { 'Content-Type': 'application/json' },
@@ -53,7 +53,7 @@ export const createAtividade = async (atividade) => {
 
 export const updateAtividade = async (id, atividade) => {
     try {
-        const response = await fetch(`${API_URL}update/${id}`, {
+        const response = await fetch(`${API_URL_ATIVIDADES}update/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(atividade),
@@ -78,7 +78,7 @@ export const updateAtividade = async (id, atividade) => {
 
 export const deleteAtividade = async (id) => {
     try {
-        const response = await fetch(`${API_URL}delete/${id}`, {
+        const response = await fetch(`${API_URL_ATIVIDADES}delete/${id}`, {
             method: 'DELETE'
         });
         if (!response.ok) {

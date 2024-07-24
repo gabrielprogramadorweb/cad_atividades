@@ -82,3 +82,11 @@ $config['migration_version'] = 0;
 |
 */
 $config['migration_path'] = APPPATH.'migrations/';
+
+return [
+    'migrations_paths' => [
+        'Migrations' => APPPATH . 'migrations',
+    ],
+    'all_or_nothing' => true,
+    'check_database_platform' => true,
+];

@@ -1,5 +1,6 @@
 <?php
 
+use Doctrine\Common\ClassLoader;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 
@@ -8,25 +9,34 @@ class Doctrine {
     public $em;
 
     public function __construct() {
-        // Caminho para as entidades
-        $paths = array(APPPATH . 'models/Entities');
+        global $db;
+        require_once FCPATH . 'vendor/autoload.php';
+
+        require APPPATH . 'config/database.php';
+
+        $connection_options = array(
+            'driver'        => 'pdo_mysql',
+            'user'          => $db['default']['username'],
+            'password'      => $db['default']['password'],
+            'host'          => $db['default']['hostname'],
+            'dbname'        => $db['default']['database'],
+            'charset'       => $db['default']['char_set'],
+            'driverOptions' => array(
+                'charset' => $db['default']['char_set'],
+            ),
+        );
+
+        $models_namespace = 'Entities';
+        $models_path = APPPATH . 'models/Entities';
+        $proxies_dir = APPPATH . 'models/Proxies';
+        $metadata_paths = array(APPPATH . 'models/Entities');
+
         $isDevMode = true;
 
-        // Configurações do banco de dados
-        $dbParams = array(
-            'driver'   => 'pdo_mysql',
-            'user'     => 'cad_atividades',
-            'password' => 'password',
-            'dbname'   => 'cad_atividades',
-            'host'     => 'db',
-            'charset'  => 'utf8'
-        );
+        $config = Setup::createAnnotationMetadataConfiguration($metadata_paths, $isDevMode, $proxies_dir, null, false);
+        $this->em = EntityManager::create($connection_options, $config);
 
-        require_once FCPATH . 'vendor/autoload.php';
-        $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, null, null, false);
-        $config->setMetadataDriverImpl(
-            Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, null, null, false)->newDefaultAnnotationDriver($paths, false)
-        );
-        $this->em = EntityManager::create($dbParams, $config);
+        $loader = new ClassLoader($models_namespace, $models_path);
+        $loader->register();
     }
 }

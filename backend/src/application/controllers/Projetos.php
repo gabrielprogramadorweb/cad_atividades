@@ -94,7 +94,6 @@ class Projetos extends CI_Controller {
             $this->load->model('Atividade_model');
             $this->Atividade_model->delete_atividades_por_projeto($id);
 
-            // Excluir o projeto
             $this->Projeto_model->delete_projeto($id);
             echo json_encode(['status' => 'success']);
         } catch (Exception $e) {
